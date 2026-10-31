@@ -624,7 +624,7 @@ public class Book
                 final Score score = entry.getKey();
                 final Path scorePath = entry.getValue();
                 final String scoreName = (!isMultiMovement()) ? bookName
-                        : (bookName + OMR.MOVEMENT_EXTENSION + score.getId());
+                        : (bookName + OMR.MOVEMENT_EXTENSION + getMovementId(score, theScores));
 
                 try {
                     new ScoreExporter(score).export(scorePath, scoreName, sig, compressed);
@@ -1069,6 +1069,27 @@ public class Book
         return null;
     }
 
+    //---------------//
+    // getMovementId //
+    //---------------//
+    /**
+     * Report the movement id of a score.
+     * <p>
+     * Scores built on selected sheets only are not registered in the book,
+     * hence their id is taken from their rank in the provided list.
+     *
+     * @param score     the score at hand
+     * @param theScores the list of scores being processed
+     * @return the movement id
+     */
+    private Integer getMovementId (Score score,
+                                   List<Score> theScores)
+    {
+        final Integer id = score.getId();
+
+        return (id != null) ? id : 1 + theScores.indexOf(score);
+    }
+
     //---------------------//
     // getScoreExportPaths //
     //---------------------//
@@ -1096,7 +1117,7 @@ public class Book
 
         for (Score score : theScores) {
             final String scoreName = (!isMultiMovement()) ? bookName
-                    : (bookName + OMR.MOVEMENT_EXTENSION + score.getId());
+                    : (bookName + OMR.MOVEMENT_EXTENSION + getMovementId(score, theScores));
             pathMap.put(score, bookPathSansExt.resolveSibling(scoreName + ext));
         }
 

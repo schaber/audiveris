@@ -133,11 +133,15 @@ public class BookPdfOutput
                 g2.setColor(Color.BLACK);
 
                 // Sheet painting
-                painter.paint(stub.getSheet(), g2);
-
-                // This is the end...
-                g2.dispose();
-                printedIds.add(stub.getNumber());
+                // Dispose in all cases, to keep PDF save/restore operators balanced
+                try {
+                    painter.paint(stub.getSheet(), g2);
+                    printedIds.add(stub.getNumber());
+                } catch (Exception ex) {
+                    logger.warn("Error painting {} {}", stub, ex.toString(), ex);
+                } finally {
+                    g2.dispose();
+                }
             }
 
             logger.info("Printed sheet(s): {}", printedIds);
